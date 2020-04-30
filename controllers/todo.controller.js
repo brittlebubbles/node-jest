@@ -30,3 +30,18 @@ exports.getSingleTodo = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.updateTodo = async (req, res, next) => {
+  try {
+    const updatedTodo = await TodoModel.findByIdAndUpdate(
+      req.params.todoId,
+      req.body,
+      {
+        new: true,
+      }
+    );
+    res.status(200).json(updatedTodo);
+  } catch (err) {
+    next(err);
+  }
+};
