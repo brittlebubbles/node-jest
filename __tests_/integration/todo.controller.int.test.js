@@ -3,7 +3,10 @@ const app = require("../../app");
 const newTodo = require("../mock-data/new-todo.json");
 
 const endpointUrl = "/todos/";
-let firstTodo;
+let firstTodo, newTodoId;
+const nonExistingTodoId = "5ea96e5e17f31f173d4738f3";
+
+const testData = { title: "Make int for test PUT", done: true };
 
 describe(endpointUrl, () => {
   it("GET " + endpointUrl, async () => {
@@ -34,6 +37,7 @@ describe(endpointUrl, () => {
     expect(response.statusCode).toBe(201);
     expect(response.body.title).toBe(newTodo.title);
     expect(response.body.done).toBe(newTodo.done);
+    newTodoId = response.body._id;
   });
   it(
     "Should return error 500 on malformed data with POST" + endpointUrl,
@@ -47,4 +51,26 @@ describe(endpointUrl, () => {
       });
     }
   );
+  it("PUT" + endpointUrl, async () => {
+    const response = await request(app)
+      .put(endpointUrl + newTodoId)
+      .send(testData);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.title).toBe(testData.title);
+    expect(response.body.done).toBe(testData.done);
+  });
+  it("DELETE " + endpointUrl, async () => {
+    const response = await request(app)
+      .delete(endpointUrl + newTodoId)
+      .send();
+    expect(response.statusCode).toBe(200);
+    expect(response.body.title).toBe(testData.title);
+    expect(response.body.done).toBe(testData.done);
+  });
+  test("DELETE - return 404", async () => {
+    const response = await request(app)
+      .delete(endpointUrl + nonExistingTodoId)
+      .send();
+    expect(response.statusCode).toBe(404);
+  });
 });
